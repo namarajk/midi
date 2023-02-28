@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='js/midi.js') }}"></script>
+<h1>My MIDI Visualizer</h1>
+<div id="midi-container"></div>
+<button id="play-button">Play</button>
+<script>
+    var midiUrl = "{{ url_for('serve_midi', filename='my_midi_file.mid') }}";
+    var audio = new Audio();
+    MIDIjs.loader = {
+        audio: audio,
+        soundfontUrl: MIDIjs.soundfontUrl,
+        instruments: {},
+        onprogress: function(state, progress) {
+            MIDIjs.loader.loadedPercent = progress * 100;
+        },
+        onload: function() {
+            MIDIjs.player.start();
+        }
+    };
+    audio.src = MIDIjs.soundfontUrl;
+    audio.addEventListener('canplaythrough', function() {
+        MIDIjs.player.loader = MIDIjs.loader;
+        MIDIjs.player.load(midiUrl);
+    });
+    $('#play-button').on('click', function() {
+        audio.play();
+    });
+</script>
+
+
+<body>
+    <h1>Generate MIDI File</h1>
+    
+    <form method="POST">
+        <label for="chords">Chords:</label>
+        <input type="text" id="chords" name="chords"><br><br>
+        <label for="tempo">Tempo (BPM):</label>
+        <input type="number" id="tempo" name="tempo"><br><br>
+        <label for="duration">Duration (in seconds):</label>
+        <input type="number" id="duration" name="duration"><br><br>
+        <label for="track">MIDI Track Number:</label>
+        <input type="number" id="track" name="track"><br><br>
+        <input type="submit" value="Generate MIDI File">
+    </form>
+</body>
+
+
+    <h1>Welcome to my Flask app!</h1>
+    <p>This is the home page.</p>
+{% endblock %}
